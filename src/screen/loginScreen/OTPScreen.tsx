@@ -9,13 +9,10 @@ import { AppDispatch, RootState } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomBtn from '../../components/CustomBtn';
 import { showToast } from '../../utils/toast';
+import { RootStackParamList } from '../../stack/AppStack';
 
 const CELL_COUNT = 4;
-type RootStackParamList = {
-  HomeScreen: undefined;
-  LoginScreen: undefined;
-  OTPScreen: undefined;
-}
+
 type OTPNav = NativeStackNavigationProp<RootStackParamList, 'OTPScreen'>;
 
 const OTPScreen = () => {
@@ -29,21 +26,22 @@ const OTPScreen = () => {
 
   const scheme = useColorScheme(); // Detect current theme
   useEffect(() => {
+    console.log('===otpData',otpData);
+    
     if (otpData?.success) {
       (async () => {
-        showToast(otpData.message, "", "success")
+        setValue('');
+        navigation.replace('HomeScreen');
+        showToast(otpData.message, "", "success");
         // Store OTP verified flag
         await AsyncStorage.setItem('otpVerified', 'true');
         await AsyncStorage.setItem('userId', otpData.user.user_id);
         await AsyncStorage.setItem('email', otpData.user.email);
         await AsyncStorage.setItem('type', otpData.user.type);
-        navigation.replace('HomeScreen');
         dispatch(reset()); // Reset the auth state
       })();
     }
   }, [otpData]);
-  console.log('eror-===', error);
-
   useEffect(() => {
     if (error && status === "failed") {
       showToast(error, "", "danger");

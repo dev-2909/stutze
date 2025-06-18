@@ -5,48 +5,34 @@ import LoginScreen from '../screen/loginScreen/LoginScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator, View } from 'react-native';
 import OTPScreen from '../screen/loginScreen/OTPScreen';
+import ProfileView from '../screen/ProfileScreen/ProfileView';
+import EditProfileScreen from '../screen/ProfileScreen/EditProfileScreen';
+import useAuthInit from './useAuthInit';
+import ServiceScreen from '../screen/HomeScreen/ServiceScreen';
+import AppTabNavigator from '../screen/BottomTab/AppTabNavigator';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
   LoginScreen: undefined;
   OTPScreen: undefined;
+  ProfileScreen: undefined;
+  EditProfileScreen: undefined;
+  ServiceScreen: undefined;
+  AppTabNavigator: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 const StackNavigator = () => {
-  const [isLogin, setIsLogin] = useState<boolean | null>(null); // null = loading
-  const [isReady, setIsReady] = useState(false);
-  const [initialRoute, setInitialRoute] = useState('LoginScreen');
-  
-  useEffect(() => {
-    (async () => {
-      const token = await AsyncStorage.getItem('authToken');
-      const otpVerified = await AsyncStorage.getItem('otpVerified');
-  
-      if (token && otpVerified === "true") {
-        setInitialRoute('HomeScreen');
-        setIsLogin(false)
-      } else {
-        setInitialRoute('LoginScreen');
-        setIsLogin(false)
-      }
-  
-      // setIsReady(true);
-    })();
-  }, []);
-  
+  const { initialRoute, loading } = useAuthInit();
 
-
-  if (isLogin === null) {
+  if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
       </View>
     );
   }
-  console.log('initialRoute',initialRoute);
-  
+
   return (
     <Stack.Navigator
       initialRouteName={initialRoute}
@@ -54,7 +40,11 @@ const StackNavigator = () => {
     >
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="OTPScreen" component={OTPScreen} />
+      <Stack.Screen name="AppTabNavigator" component={AppTabNavigator} />
       <Stack.Screen name="HomeScreen" component={HomeView} />
+      <Stack.Screen name="ProfileScreen" component={ProfileView} />
+      <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
+      <Stack.Screen name="ServiceScreen" component={ServiceScreen} />
     </Stack.Navigator>
   );
 };

@@ -15,7 +15,7 @@ const LoginScreen: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<LoginNav>();
     const { token, status, error } = useSelector((state: RootState) => state.auth);
-    const [email, setEmail] = useState('raj.com');
+    const [email, setEmail] = useState('user@example.com');
     const [mobile, setMobile] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [password, setPassword] = useState<string>('');
@@ -26,7 +26,7 @@ const LoginScreen: React.FC = () => {
 
     useEffect(() => {
         if (status === 'succeeded') {
-            navigation.navigate('OTPScreen');
+            navigation.replace('OTPScreen');
             showToast("OTP send successfully.", "", "success")
         }
     }, [status, token]);
