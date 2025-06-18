@@ -65,16 +65,16 @@ const ProfileView = () => {
                 <TouchableOpacity onPress={() => {
                     navigation.navigate("EditProfileScreen")
                 }}>
-{imageUri?                    <Image
+                    {imageUri ? <Image
                         source={{
                             uri: imageUri,
                         }}
                         style={styles.profilePic}
                     />
-                    :<Image
-                        source={require('../../assets/image/icons/profile-user.png')}
-                        style={styles.profilePic}
-                    />}
+                        : <Image
+                            source={require('../../assets/image/icons/profile-user.png')}
+                            style={styles.profilePic}
+                        />}
                 </TouchableOpacity>
 
                 <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     imgStyle: {
         width: 25,
         height: 25,
-        tintColor:"#fff"
+        tintColor: "#fff"
     },
     logoutStyle: {
         width: 25,
