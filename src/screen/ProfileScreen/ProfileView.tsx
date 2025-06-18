@@ -12,6 +12,8 @@ import { Buffer } from 'buffer';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../stack/AppStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { time } from 'console';
+import { title } from 'process';
 
 interface User {
     name: string;
@@ -63,12 +65,16 @@ const ProfileView = () => {
                 <TouchableOpacity onPress={() => {
                     navigation.navigate("EditProfileScreen")
                 }}>
-                    <Image
+{imageUri?                    <Image
                         source={{
-                            uri: imageUri || 'https://via.placeholder.com/100',
+                            uri: imageUri,
                         }}
                         style={styles.profilePic}
                     />
+                    :<Image
+                        source={require('../../assets/image/icons/profile-user.png')}
+                        style={styles.profilePic}
+                    />}
                 </TouchableOpacity>
 
                 <Text style={styles.userName}>{user?.name || 'John Doe'}</Text>
@@ -77,13 +83,15 @@ const ProfileView = () => {
 
             {/* Profile Sections */}
             <View style={styles.section}>
-                {['My Orders', 'Favorites', 'Payments', 'Settings'].map((item) => (
+                {[{ title: 'My Address', img: require('../../assets/image/icons/pin.png') }, { title: 'Pyment', img: require('../../assets/image/icons/credit-card.png') }, { title: 'Help & Supports', img: require('../../assets/image/icons/customer-support.png') }, { title: 'Settings', img: require('../../assets/image/icons/settingIcon.png') }].map((item) => (
                     <TouchableOpacity key={item} style={styles.sectionItem}>
-                        <Text style={styles.sectionText}>{item}</Text>
+                        <Image source={item.img} style={styles.imgStyle} />
+                        <Text style={styles.sectionText}>{item.title}</Text>
                     </TouchableOpacity>
                 ))}
 
                 <TouchableOpacity style={styles.sectionItem}>
+                    <Image source={require('../../assets/image/icons/logout.png')} style={[styles.logoutStyle,]} />
                     <Text style={[styles.sectionText, { color: '#FF4C4C' }]}>Logout</Text>
                 </TouchableOpacity>
             </View>
@@ -133,10 +141,22 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 15,
         elevation: 1,
+        flexDirection: "row",
+        alignItems: 'center'
     },
     sectionText: {
         fontSize: 16,
         fontWeight: '500',
         color: '#E0E0E0',
+        marginLeft: 20
     },
+    imgStyle: {
+        width: 25,
+        height: 25,
+        tintColor:"#fff"
+    },
+    logoutStyle: {
+        width: 25,
+        height: 25,
+    }
 });

@@ -7,9 +7,15 @@ import {
   Image,
 } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-
+const icons = {
+  Home: require('../assets/image/icons/homeIcon.png'),
+  Search: require('../assets/image/icons/search.png'),
+  Booking: require('../assets/image/icons/booking.png'),
+  Profile: require('../assets/image/icons/profile-user.png'),
+};
 
 const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
+  
   return (
     <View style={styles.container}>
       {state.routes.map((route, index) => {
@@ -25,22 +31,15 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 
         const onPress = () => {
           const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
           });
 
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name);
           }
         };
-
-        const iconName =
-          route.name === 'Home'
-            ? 'home'
-            : route.name === 'Orders'
-            ? 'shopping-bag'
-            : 'person';
 
         return (
           <TouchableOpacity
@@ -49,11 +48,14 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
             onPress={onPress}
             style={styles.tab}
           >
-            {/* <Icon
-              name={iconName}
-              size={26}
-              color={isFocused ? '#00D563' : '#AAA'}
-            /> */}
+            <Image
+              source={icons[route.name as keyof typeof icons]}
+              style={[
+                styles.icon,
+                { tintColor: isFocused ? '#00D563' : '#AAA' },
+              ]}
+              resizeMode="contain"
+            />
             <Text style={[styles.label, isFocused && { color: '#00D563' }]}>
               {labelTilte}
             </Text>
@@ -63,6 +65,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
@@ -71,9 +74,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     borderTopColor: '#333',
     borderTopWidth: 1,
+    height:100
   },
   tab: {
     alignItems: 'center',
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   label: {
     fontSize: 12,
