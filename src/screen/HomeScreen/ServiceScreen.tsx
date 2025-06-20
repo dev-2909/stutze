@@ -1,6 +1,6 @@
 // src/screens/ServiceScreen.tsx
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,17 +8,20 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from '../../stack/AppStack';
+import {RouteProp, useRoute} from '@react-navigation/native';
+import {RootStackParamList} from '../../stack/AppStack';
 import SearchBar from '../../components/SearchBar';
+import {commonStyle} from '../../utils/common/style';
+import HeaderComponent from '../../components/HeaderComponent';
 
 type ServiceRouteProp = RouteProp<RootStackParamList, 'ServiceScreen'>;
 
 const sampleServices = [
   {
     id: '1',
-    name: 'Domino\'s Pizza',
+    name: "Domino's Pizza",
     image: 'https://via.placeholder.com/300x150',
     rating: 4.5,
     price: '$$',
@@ -41,50 +44,53 @@ const sampleServices = [
 
 const ServiceScreen = () => {
   const route = useRoute<ServiceRouteProp>();
-  const { category } = route.params;
+  const {category} = route.params;
 
   const filteredServices = sampleServices.filter(service =>
-    service.name.toLowerCase().includes(category.toLowerCase())
+    service.name.toLowerCase().includes(category.toLowerCase()),
   );
   const [search, setSearch] = useState('');
-  const [filteredCategories, setFilteredCategories] = useState(filteredServices);
+  const [filteredCategories, setFilteredCategories] =
+    useState(filteredServices);
   const handleSearch = (text: string) => {
     setSearch(text);
 
     if (text.trim() === '') {
-      setFilteredCategories(categories);
+      setFilteredCategories(filteredServices);
     } else {
-      const filtered = categories.filter(item =>
-        item.name.toLowerCase().includes(text.toLowerCase())
+      const filtered = filteredServices.filter(item =>
+        item.name.toLowerCase().includes(text.toLowerCase()),
       );
       setFilteredCategories(filtered);
     }
   };
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{category} Services</Text>
-      {/* Search Bar */}
-        <SearchBar  search={search} handleSearch={handleSearch} />
-      <FlatList
-        data={filteredServices.length > 0 ? filteredServices : sampleServices}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image source={{ uri: item.image }} style={styles.image} />
-            <View style={styles.info}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.meta}>
-                ⭐ {item.rating} • {item.price}
-              </Text>
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Order Now</Text>
-              </TouchableOpacity>
+    <SafeAreaView style={commonStyle.safeArea}>
+      <HeaderComponent title={`${category} Services`} />
+      <View style={styles.container}>
+        {/* Search Bar */}
+        <SearchBar search={search} handleSearch={handleSearch} />
+        <FlatList
+          data={filteredServices.length > 0 ? filteredServices : sampleServices}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => (
+            <View style={styles.card}>
+              <Image source={{uri: item.image}} style={styles.image} />
+              <View style={styles.info}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.meta}>
+                  ⭐ {item.rating} • {item.price}
+                </Text>
+                <TouchableOpacity style={styles.button}>
+                  <Text style={styles.buttonText}>Order Now</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-        contentContainerStyle={{ paddingBottom: 50,marginTop:15 }}
-      />
-    </View>
+          )}
+          contentContainerStyle={{paddingBottom: 50, marginTop: 15}}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,15 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  SafeAreaView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Buffer } from 'buffer';
-import { RootStackParamList } from '../../stack/AppStack';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import {Buffer} from 'buffer';
+import {RootStackParamList} from '../../stack/AppStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
 import SearchBar from '../../components/SearchBar';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -24,20 +26,20 @@ const HomeView = () => {
   const navigation = useNavigation<ProfileNav>();
 
   const categories = [
-    { id: '1', name: 'Food', image: 'https://via.placeholder.com/80' },
-    { id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80' },
-    { id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80' },
-    { id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80' },
-    { id: '1', name: 'Food', image: 'https://via.placeholder.com/80' },
-    { id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80' },
-    { id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80' },
-    { id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80' },
+    {id: '1', name: 'Food', image: 'https://via.placeholder.com/80'},
+    {id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80'},
+    {id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
+    {id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80'},
+    {id: '1', name: 'Food', image: 'https://via.placeholder.com/80'},
+    {id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80'},
+    {id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
+    {id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80'},
   ];
 
   const services = [
     {
       id: '1',
-      name: 'Domino\'s Pizza',
+      name: "Domino's Pizza",
       image: 'https://via.placeholder.com/300x150',
       rating: 4.5,
       price: '$$',
@@ -66,7 +68,7 @@ const HomeView = () => {
       setFilteredCategories(categories);
     } else {
       const filtered = categories.filter(item =>
-        item.name.toLowerCase().includes(text.toLowerCase())
+        item.name.toLowerCase().includes(text.toLowerCase()),
       );
       setFilteredCategories(filtered);
     }
@@ -89,7 +91,9 @@ const HomeView = () => {
         const data = res.data;
 
         const buffer = Buffer.from(data.profilePic.data);
-        const base64Image = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+        const base64Image = `data:image/jpeg;base64,${buffer.toString(
+          'base64',
+        )}`;
         setImageUri(base64Image);
         setLoading(false);
       } catch (error) {
@@ -102,30 +106,32 @@ const HomeView = () => {
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{
-      paddingBottom: 50
-    }}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View>
-        <Text style={styles.title}>Welcome</Text>
-        <Text style={styles.locationText}>Near stress, New York, Ny</Text>
-        
+          <Text style={styles.title}>Welcome</Text>
+          <Text style={styles.locationText}>Near stress, New York, Ny</Text>
         </View>
         {imageUri ? (
-          <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
-            <Image source={{ uri: imageUri }} style={styles.profilePic} />
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ProfileScreen')}>
+            <Image source={{uri: imageUri}} style={styles.profilePic} />
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')} style={{
-
-          }}>
-            <Image source={require('../../assets/image/user.png')} style={styles.profilePic} tintColor={'#fff'} />
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ProfileScreen')}
+            style={{}}>
+            <Image
+              source={require('../../assets/image/user.png')}
+              style={styles.profilePic}
+              tintColor={'#fff'}
+            />
           </TouchableOpacity>
         )}
       </View>
       {/* Search Bar */}
-        <SearchBar  search={search} handleSearch={handleSearch} />
+      <SearchBar search={search} handleSearch={handleSearch} />
       {/* Categories */}
       <Text style={styles.sectionTitle}>Categories</Text>
       <FlatList
@@ -133,16 +139,18 @@ const HomeView = () => {
         keyExtractor={item => item.id}
         numColumns={2}
         style={styles.flatList}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.categoryCard} onPress={() => navigation.navigate('ServiceScreen', { category: item.name })}>
-            <Image source={{ uri: item.image }} style={styles.categoryImage} />
+        renderItem={({item}) => (
+          <TouchableOpacity
+            style={styles.categoryCard}
+            onPress={() =>
+              navigation.navigate('ServiceScreen', {category: item.name})
+            }>
+            <Image source={{uri: item.image}} style={styles.categoryImage} />
             <Text style={styles.categoryText}>{item.name}</Text>
           </TouchableOpacity>
         )}
       />
-
-
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -203,7 +211,7 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 3,

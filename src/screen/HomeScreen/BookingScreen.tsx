@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
+import {SafeAreaView} from 'react-native';
 import {
   View,
   Text,
@@ -7,6 +8,8 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
+import {commonStyle} from '../../utils/common/style';
+import HeaderComponent from '../../components/HeaderComponent';
 
 const tabs = ['Active', 'Upcoming', 'History'];
 
@@ -46,66 +49,70 @@ const BookingScreen = () => {
   const [selectedTab, setSelectedTab] = useState('Upcoming');
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>My Bookings</Text>
+    <SafeAreaView style={commonStyle.safeArea}>
+      <HeaderComponent title="My Bookings" />
+      <ScrollView style={styles.container}>
+        {/* Tabs */}
+        <View style={styles.tabContainer}>
+          {tabs.map(tab => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setSelectedTab(tab)}
+              style={[styles.tab, selectedTab === tab && styles.activeTab]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  selectedTab === tab && styles.activeTabText,
+                ]}>
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Tabs */}
-      <View style={styles.tabContainer}>
-        {tabs.map(tab => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setSelectedTab(tab)}
-            style={[
-              styles.tab,
-              selectedTab === tab && styles.activeTab,
-            ]}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === tab && styles.activeTabText,
-              ]}
-            >
-              {tab}
-            </Text>
-          </TouchableOpacity>
+        {/* Bookings List */}
+        {bookings.map(item => (
+          <View key={item.id} style={styles.card}>
+            <View>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+              <Text style={styles.cardDate}>📅 {item.date}</Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  {backgroundColor: item.statusColor},
+                ]}>
+                <Text style={styles.statusText}>{item.status}</Text>
+              </View>
+            </View>
+            <TouchableOpacity style={styles.actionButton}>
+              <Text style={styles.actionText}>{item.action}</Text>
+            </TouchableOpacity>
+          </View>
         ))}
-      </View>
 
-      {/* Bookings List */}
-      {bookings.map(item => (
-        <View key={item.id} style={styles.card}>
-          <View>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-            <Text style={styles.cardDate}>📅 {item.date}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: item.statusColor }]}>
-              <Text style={styles.statusText}>{item.status}</Text>
+        {/* Recurring Services */}
+        <Text style={styles.sectionTitle}>Recurring Services</Text>
+        {recurringServices.map(item => (
+          <View key={item.id} style={styles.card}>
+            <View>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardDate}>📅 {item.date}</Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  {backgroundColor: item.statusColor},
+                ]}>
+                <Text style={styles.statusText}>{item.status}</Text>
+              </View>
             </View>
+            <TouchableOpacity style={styles.actionButton}>
+              <Text style={styles.actionText}>{item.action}</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionText}>{item.action}</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-
-      {/* Recurring Services */}
-      <Text style={styles.sectionTitle}>Recurring Services</Text>
-      {recurringServices.map(item => (
-        <View key={item.id} style={styles.card}>
-          <View>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardDate}>📅 {item.date}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: item.statusColor }]}>
-              <Text style={styles.statusText}>{item.status}</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionText}>{item.action}</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-    </ScrollView>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

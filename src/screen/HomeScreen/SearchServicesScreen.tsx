@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  SafeAreaView,
 } from 'react-native';
+import {commonStyle} from '../../utils/common/style';
+import HeaderComponent from '../../components/HeaderComponent';
 
 const filters = ['All', 'Nearby', 'Top Rated', 'Budget'];
 
@@ -15,46 +18,45 @@ const SearchServicesScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Search Services</Text>
+    <SafeAreaView style={commonStyle.safeArea}>
+      <HeaderComponent title="Search Services" />
+      <View style={styles.container}>
+        {/* Search Input */}
+        <View style={styles.searchBox}>
+          <TextInput
+            placeholder="What service do you need?"
+            placeholderTextColor="#999"
+            style={styles.input}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+        </View>
 
-      {/* Search Input */}
-      <View style={styles.searchBox}>
-        <TextInput
-          placeholder="What service do you need?"
-          placeholderTextColor="#999"
-          style={styles.input}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View>
-
-      {/* Filter Chips */}
-      <View style={styles.filterContainer}>
-        {filters.map((filter) => (
-          <TouchableOpacity
-            key={filter}
-            onPress={() => setSelectedFilter(filter)}
-            style={[
-              styles.filterButton,
-              selectedFilter === filter && styles.activeFilter,
-            ]}
-          >
-            <Text
+        {/* Filter Chips */}
+        <View style={styles.filterContainer}>
+          {filters.map(filter => (
+            <TouchableOpacity
+              key={filter}
+              onPress={() => setSelectedFilter(filter)}
               style={[
-                styles.filterText,
-                selectedFilter === filter && styles.activeFilterText,
-              ]}
-            >
-              {filter}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+                styles.filterButton,
+                selectedFilter === filter && styles.activeFilter,
+              ]}>
+              <Text
+                style={[
+                  styles.filterText,
+                  selectedFilter === filter && styles.activeFilterText,
+                ]}>
+                {filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Message */}
-      <Text style={styles.message}>Enter a service name to search...</Text>
-    </View>
+        {/* Message */}
+        <Text style={styles.message}>Enter a service name to search...</Text>
+      </View>
+    </SafeAreaView>
   );
 };
 
