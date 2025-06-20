@@ -17,6 +17,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import SearchBar from '../../components/SearchBar';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {commonStyle} from '../../utils/common/style';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -106,50 +107,52 @@ const HomeView = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Welcome</Text>
-          <Text style={styles.locationText}>Near stress, New York, Ny</Text>
+    <SafeAreaView style={commonStyle.safeArea}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>Welcome</Text>
+            <Text style={styles.locationText}>Near stress, New York, Ny</Text>
+          </View>
+          {imageUri ? (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ProfileScreen')}>
+              <Image source={{uri: imageUri}} style={styles.profilePic} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ProfileScreen')}
+              style={{}}>
+              <Image
+                source={require('../../assets/image/user.png')}
+                style={styles.profilePic}
+                tintColor={'#fff'}
+              />
+            </TouchableOpacity>
+          )}
         </View>
-        {imageUri ? (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ProfileScreen')}>
-            <Image source={{uri: imageUri}} style={styles.profilePic} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ProfileScreen')}
-            style={{}}>
-            <Image
-              source={require('../../assets/image/user.png')}
-              style={styles.profilePic}
-              tintColor={'#fff'}
-            />
-          </TouchableOpacity>
-        )}
+        {/* Search Bar */}
+        <SearchBar search={search} handleSearch={handleSearch} />
+        {/* Categories */}
+        <Text style={styles.sectionTitle}>Categories</Text>
+        <FlatList
+          data={filteredCategories}
+          keyExtractor={item => item.id}
+          numColumns={2}
+          style={styles.flatList}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.categoryCard}
+              onPress={() =>
+                navigation.navigate('ServiceScreen', {category: item.name})
+              }>
+              <Image source={{uri: item.image}} style={styles.categoryImage} />
+              <Text style={styles.categoryText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
       </View>
-      {/* Search Bar */}
-      <SearchBar search={search} handleSearch={handleSearch} />
-      {/* Categories */}
-      <Text style={styles.sectionTitle}>Categories</Text>
-      <FlatList
-        data={filteredCategories}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        style={styles.flatList}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.categoryCard}
-            onPress={() =>
-              navigation.navigate('ServiceScreen', {category: item.name})
-            }>
-            <Image source={{uri: item.image}} style={styles.categoryImage} />
-            <Text style={styles.categoryText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
     </SafeAreaView>
   );
 };
@@ -161,7 +164,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
     paddingHorizontal: 10,
-    paddingTop: 40,
   },
   sectionTitle: {
     fontSize: 18,
