@@ -13,6 +13,7 @@ import HeaderComponent from '../../components/HeaderComponent';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../stack/AppStack';
+import EditAddressModal from '../../components/EditAddressModal';
 
 type MyAddressScreenNAv = NativeStackNavigationProp<RootStackParamList>;
 
@@ -38,14 +39,35 @@ const MyAddressScreen = () => {
       icon: require('../../assets/image/icons/pin.png'),
     },
   ]);
-
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<{
+    id: string;
+    title: string;
+    address: string;
+  } | null>(null);
   const handleAddAddress = () => {
     navigation.navigate('AddAddressScreen');
   };
 
   const handleEditAddress = (id: string) => {
-    // Navigate to Edit Address Screen or show a modal
-    console.log('Edit Address:', id);
+    const addressToEdit = addresses.find(address => address.id === id);
+    if (addressToEdit) {
+      setSelectedAddress(addressToEdit);
+      setEditModalVisible(true);
+    }
+  };
+  const handleSaveEdit = () => {
+    if (selectedAddress) {
+      setAddresses(prev =>
+        prev.map(address =>
+          address.id === selectedAddress.id
+            ? {...selectedAddress, icon: address.icon}
+            : address,
+        ),
+      );
+      setEditModalVisible(false);
+      setSelectedAddress(null);
+    }
   };
 
   const handleDeleteAddress = (id: string) => {
@@ -94,6 +116,13 @@ const MyAddressScreen = () => {
               </View>
             </View>
           )}
+        />
+        <EditAddressModal
+          isEditModalVisible={isEditModalVisible}
+          setEditModalVisible={setEditModalVisible}
+          handleSaveEdit={handleSaveEdit}
+          selectedAddress={selectedAddress}
+          setSelectedAddress={setSelectedAddress}
         />
       </View>
     </SafeAreaView>
