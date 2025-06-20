@@ -61,8 +61,14 @@ const ProfileView = () => {
 
     fetchProfile();
   }, []);
-  const onPressTab = () => {
+  const onPressTab = (item: any) => {
+    console.log('--==', item);
+    return;
     navigation.navigate('MyAddressScreen');
+  };
+  const onPresslogout = async () => {
+    await AsyncStorage.setItem('otpVerified', 'false');
+    navigation.replace('LoginScreen');
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -123,7 +129,7 @@ const ProfileView = () => {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={styles.sectionItem}>
+        <TouchableOpacity style={styles.sectionItem} onPress={onPresslogout}>
           <Image
             source={require('../../assets/image/icons/logout.png')}
             style={[styles.logoutStyle]}
