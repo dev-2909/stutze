@@ -12,6 +12,7 @@ import ServiceScreen from '../screen/HomeScreen/ServiceScreen';
 import AppTabNavigator from '../screen/BottomTab/AppTabNavigator';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import MyAddressScreen from '../screen/ProfileScreen/MyAddressScreen';
+import AddAddressScreen from '../screen/ProfileScreen/AddAddressScreen';
 
 export type RootStackParamList = {
   AppTabNavigator: undefined;
@@ -22,6 +23,7 @@ export type RootStackParamList = {
   EditProfileScreen: undefined;
   ServiceScreen: {category: string};
   MyAddressScreen: undefined;
+  AddAddressScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -48,6 +50,7 @@ const StackNavigator = () => {
       <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
       <Stack.Screen name="ServiceScreen" component={ServiceScreen} />
       <Stack.Screen name="MyAddressScreen" component={MyAddressScreen} />
+      <Stack.Screen name="AddAddressScreen" component={AddAddressScreen} />
     </Stack.Navigator>
   );
 };

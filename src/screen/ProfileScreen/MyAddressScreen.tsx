@@ -10,8 +10,14 @@ import {
 } from 'react-native';
 import {commonStyle} from '../../utils/common/style';
 import HeaderComponent from '../../components/HeaderComponent';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../stack/AppStack';
+
+type MyAddressScreenNAv = NativeStackNavigationProp<RootStackParamList>;
 
 const MyAddressScreen = () => {
+  const navigation = useNavigation<MyAddressScreenNAv>();
   const [addresses, setAddresses] = useState([
     {
       id: '1',
@@ -34,8 +40,7 @@ const MyAddressScreen = () => {
   ]);
 
   const handleAddAddress = () => {
-    // Navigate to Add Address Screen or show a modal
-    console.log('Add Address');
+    navigation.navigate('AddAddressScreen');
   };
 
   const handleEditAddress = (id: string) => {
@@ -72,14 +77,19 @@ const MyAddressScreen = () => {
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => handleEditAddress(item.id)}>
-                  <Text style={styles.actionText}>Edit</Text>
+                  <Image
+                    source={require('../../assets/image/icons/edit.png')}
+                    style={styles.icon}
+                  />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => handleDeleteAddress(item.id)}>
-                  <Text style={[styles.actionText, {color: '#FF4C4C'}]}>
-                    Delete
-                  </Text>
+                  <Image
+                    source={require('../../assets/image/icons/delete.png')}
+                    style={styles.icon}
+                    tintColor={'red'}
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -147,9 +157,10 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   actionButton: {
-    marginLeft: 10,
+    marginLeft: 15,
   },
   actionText: {
     fontSize: 14,

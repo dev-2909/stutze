@@ -14,6 +14,13 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need your location to show nearby addresses.</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Location access is used to show your position on the map.</string>
+<key>NSLocationAlwaysUsageDescription</key>
+<string>We use your location to help you choose the best delivery address.</string>
+
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
