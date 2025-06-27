@@ -21,14 +21,18 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
   useEffect(() => {
     if (userData && userData?.profilePic?.data) {
       (async () => {
-        const imgUrl: any = await convertImageToBase64();
+        const imgUrl: any = await convertImageToBase64(
+          userData?.profilePic?.data,
+        );
         setImageUri(imgUrl);
       })();
     }
   }, [userData]);
   useEffect(() => {
     (async () => {
-      const imgUrlData: any = await convertImageToBase64();
+      const imgUrlData: any = await convertImageToBase64(
+        userData?.profilePic?.data,
+      );
       setImageUri(imgUrlData);
     })();
   }, []);

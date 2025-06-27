@@ -35,9 +35,12 @@ const ProfileView = () => {
   const {getUserDataFn, convertImageToBase64} = useCommanFn();
   useEffect(() => {
     (async () => {
-      const imgUrlData: any = await convertImageToBase64();
       const data: any = await getUserDataFn();
+      const imgUrlData: any = await convertImageToBase64(
+        data?.profilePic?.data,
+      );
       setImageUri(imgUrlData);
+
       setUser(data);
     })();
   }, []);

@@ -41,6 +41,12 @@ const HomeView = () => {
     (async () => {
       const getData = await getUserDataFn();
       setUserData(getData);
+      (async () => {
+        const imgUrl: any = await convertImageToBase64(
+          getData?.profilePic?.data,
+        );
+        setImageUri(imgUrl);
+      })();
     })();
   }, []);
 
@@ -75,16 +81,9 @@ const HomeView = () => {
       console.error('Error fetching user data:', error);
     }
   };
+
   useEffect(() => {
-    if (userData && userData?.profilePic?.data) {
-      (async () => {
-        const imgUrl: any = await convertImageToBase64();
-        setImageUri(imgUrl);
-      })();
-    }
-  }, [userData]);
-  useEffect(() => {
-    apiCall();
+    if (!userDataAll) apiCall();
   }, [userDataAll]);
 
   return (

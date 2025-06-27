@@ -26,20 +26,33 @@ import {showToast} from '../../utils/toast';
 
 const EditProfileScreen = () => {
   const darkMode = true;
-  const {convertImageToBase64} = useCommanFn();
+  const {convertImageToBase64, getUserDataFn} = useCommanFn();
   const dispatch = useDispatch<AppDispatch>();
+  const [userData, setUserData] = useState<any>(null);
 
-  const {updateProfile, loading, userData} = useSelector(
-    (state: any) => state.profile,
-  );
+  useEffect(() => {
+    (async () => {
+      const getData = await getUserDataFn();
+      setData({
+        name: getData?.name || '',
+        email: getData?.email || '',
+        phoneNumber: getData?.phoneNumber || '',
+        gender: getData?.gender || '',
+      });
+      setUserData(getData);
+    })();
+  }, []);
+
+  const {updateProfile, loading} = useSelector((state: any) => state.profile);
   console.log('updateProfile', userData);
+  const [data, setData] = useState<any>({});
   const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [name, setName] = useState(userData?.name || '');
-  const [phoneNumber, setPhoneNumber] = useState(userData?.phoneNumber || '');
-  const [email, setEmail] = useState(userData?.email || '');
-  const [gender, setGender] = useState<'male' | 'female' | 'other'>(
-    userData?.gender || '',
-  );
+  // const [name, setName] = useState(userData?.name || '');
+  // const [phoneNumber, setPhoneNumber] = useState(userData?.phoneNumber || '');
+  // const [email, setEmail] = useState(userData?.email || '');
+  // const [gender, setGender] = useState<'male' | 'female' | 'other'>(
+  //   userData?.gender || '',
+  // );
 
   useEffect(() => {
     if (updateProfile?.success) {
@@ -49,7 +62,9 @@ const EditProfileScreen = () => {
   }, [updateProfile]);
   useEffect(() => {
     (async () => {
-      const imgUrlData: any = await convertImageToBase64();
+      const imgUrlData: any = await convertImageToBase64(
+        userData?.profilePic?.data,
+      );
       setProfilePic(imgUrlData);
     })();
   }, [userData]);
@@ -64,9 +79,9 @@ const EditProfileScreen = () => {
     try {
       dispatch(
         updateUserProfile({
-          email: email,
-          phoneNumber: phoneNumber,
-          gender: gender,
+          email: data?.email,
+          phoneNumber: data?.phoneNumber,
+          gender: data?.gender || '',
           profilePicUri: profilePic,
         }),
       );
@@ -99,33 +114,33 @@ const EditProfileScreen = () => {
 
         <TextInput
           style={[styles.input, darkMode && styles.inputDark]}
-          value={name}
+          value={data?.name}
           placeholder="Name"
           placeholderTextColor={darkMode ? '#aaa' : '#555'}
-          onChangeText={setName}
+          onChangeText={text => setData({...data, name: text})}
         />
         <TextInput
           style={[styles.input, darkMode && styles.inputDark]}
-          value={phoneNumber}
+          value={data?.phoneNumber}
           placeholder="Phone Number"
           placeholderTextColor={darkMode ? '#aaa' : '#555'}
           keyboardType="phone-pad"
-          onChangeText={setPhoneNumber}
+          onChangeText={text => setData({...data, phoneNumber: text})}
         />
         <TextInput
           style={[styles.input, darkMode && styles.inputDark]}
-          value={email}
+          value={data.email}
           placeholder="Email"
           placeholderTextColor={darkMode ? '#aaa' : '#555'}
           keyboardType="email-address"
-          onChangeText={setEmail}
+          onChangeText={text => setData({...data, email: text})}
         />
         <TextInput
           style={[styles.input, darkMode && styles.inputDark]}
-          value={gender}
+          value={data.gender}
           placeholder="Gender"
           placeholderTextColor={darkMode ? '#aaa' : '#555'}
-          onChangeText={text => setGender(text as any)}
+          onChangeText={text => setData({...data, gender: text.toLowerCase()})}
         />
         <CustomBtn
           onPress={handleUpdateProfile}
