@@ -52,7 +52,7 @@ const EditProfileScreen = () => {
       const imgUrlData: any = await convertImageToBase64();
       setProfilePic(imgUrlData);
     })();
-  }, []);
+  }, [userData]);
   const pickImage = () => {
     launchImageLibrary({mediaType: 'photo'}, response => {
       if (response.assets && response.assets[0]?.uri) {
@@ -61,31 +61,37 @@ const EditProfileScreen = () => {
     });
   };
   const handleUpdateProfile = () => {
-    dispatch(
-      updateUserProfile({
-        email: email,
-        phoneNumber: phoneNumber,
-        gender: gender,
-        profilePicUri: profilePic,
-      }),
-    );
+    try {
+      dispatch(
+        updateUserProfile({
+          email: email,
+          phoneNumber: phoneNumber,
+          gender: gender,
+          profilePicUri: profilePic,
+        }),
+      );
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showToast('Failed to update profile. Please try again.', '', 'danger');
+    }
   };
 
   return (
     <SafeAreaView style={commonStyle.safeArea}>
       <HeaderComponent title="Edit Profile" />
       <ScrollView
-        style={[styles.container, darkMode && styles.containerDark]}
+        style={[styles.container]}
         contentContainerStyle={{alignItems: 'center', paddingBottom: 50}}>
         <TouchableOpacity onPress={pickImage}>
-          <Image
-            source={
-              profilePic
-                ? {uri: profilePic}
-                : require('../../assets/image/wp.webp')
-            }
-            style={styles.profileImage}
-          />
+          {profilePic ? (
+            <Image source={{uri: profilePic}} style={styles.profileImage} />
+          ) : (
+            <Image
+              source={require('../../assets/image/icons/profile-user.png')}
+              style={styles.profileImage}
+            />
+          )}
+
           <Text style={[styles.changePicText, darkMode && styles.textDark]}>
             Change Profile Picture
           </Text>
@@ -136,12 +142,10 @@ export default EditProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
     padding: 20,
   },
-  containerDark: {
-    backgroundColor: '#121212',
-  },
+
   profileImage: {
     width: 120,
     height: 120,
