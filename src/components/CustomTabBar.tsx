@@ -1,12 +1,8 @@
-import React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Image,
-} from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import React, {useEffect, useMemo, useState} from 'react';
+import {View, TouchableOpacity, Text, StyleSheet, Image} from 'react-native';
+import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import useCommanFn from '../screen/HomeScreen/MainCommanFn';
+import {useSelector} from 'react-redux';
 const icons = {
   Home: require('../assets/image/icons/homeIcon.png'),
   Search: require('../assets/image/icons/search.png'),
@@ -14,13 +10,33 @@ const icons = {
   Profile: require('../assets/image/icons/profile-user.png'),
 };
 
-const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
-  
+const CustomTabBar: React.FC<BottomTabBarProps> = ({
+  state,
+  descriptors,
+  navigation,
+}) => {
+  const {userData} = useSelector((state: any) => state.profile);
+  const [imageUri, setImageUri] = useState('');
+  const {convertImageToBase64} = useCommanFn();
+  useEffect(() => {
+    if (userData && userData?.profilePic?.data) {
+      (async () => {
+        const imgUrl: any = await convertImageToBase64();
+        setImageUri(imgUrl);
+      })();
+    }
+  }, [userData]);
+  useEffect(() => {
+    (async () => {
+      const imgUrlData: any = await convertImageToBase64();
+      setImageUri(imgUrlData);
+    })();
+  }, []);
   return (
     <View style={styles.container}>
       {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const labelTilte =
+        const {options} = descriptors[route.key];
+        const labelTilte: any =
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
             : options.title !== undefined
@@ -40,23 +56,37 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
             navigation.navigate(route.name);
           }
         };
-
+        console.log('route.name', route.name);
         return (
           <TouchableOpacity
             key={route.key}
             accessibilityRole="button"
             onPress={onPress}
-            style={styles.tab}
-          >
-            <Image
-              source={icons[route.name as keyof typeof icons]}
-              style={[
-                styles.icon,
-                { tintColor: isFocused ? '#00D563' : '#AAA' },
-              ]}
-              resizeMode="contain"
-            />
-            <Text style={[styles.label, isFocused && { color: '#00D563' }]}>
+            style={styles.tab}>
+            {route.name === 'Profile' && imageUri ? (
+              <Image
+                source={{uri: imageUri}}
+                style={[
+                  styles.icon,
+                  {
+                    width: 30,
+                    height: 30,
+                    borderRadius: 20,
+                  },
+                ]}
+              />
+            ) : (
+              <Image
+                source={icons[route.name as keyof typeof icons]}
+                style={[
+                  styles.icon,
+                  {tintColor: isFocused ? '#00D563' : '#AAA'},
+                ]}
+                resizeMode="contain"
+              />
+            )}
+
+            <Text style={[styles.label, isFocused && {color: '#00D563'}]}>
               {labelTilte}
             </Text>
           </TouchableOpacity>
@@ -74,7 +104,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     borderTopColor: '#333',
     borderTopWidth: 1,
-    height:100
+    height: 100,
   },
   tab: {
     alignItems: 'center',

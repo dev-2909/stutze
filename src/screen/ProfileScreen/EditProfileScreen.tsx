@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,21 +13,62 @@ import {
 import {launchImageLibrary} from 'react-native-image-picker';
 import {commonStyle} from '../../utils/common/style';
 import HeaderComponent from '../../components/HeaderComponent';
+import useCommanFn from '../HomeScreen/MainCommanFn';
+import {AppDispatch} from '../../redux/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  resetProfile,
+  resetProfileUpdate,
+  updateUserProfile,
+} from '../../redux/slices/profileSlice';
+import CustomBtn from '../../components/CustomBtn';
+import {showToast} from '../../utils/toast';
 
 const EditProfileScreen = () => {
   const darkMode = true;
-  const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [name, setName] = useState('John Doe');
-  const [phoneNumber, setPhoneNumber] = useState('9876543523');
-  const [email, setEmail] = useState('johndoe@example.com');
-  const [gender, setGender] = useState<'male' | 'female' | 'other'>('male');
+  const {convertImageToBase64} = useCommanFn();
+  const dispatch = useDispatch<AppDispatch>();
 
+  const {updateProfile, loading, userData} = useSelector(
+    (state: any) => state.profile,
+  );
+  console.log('updateProfile', userData);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [name, setName] = useState(userData?.name || '');
+  const [phoneNumber, setPhoneNumber] = useState(userData?.phoneNumber || '');
+  const [email, setEmail] = useState(userData?.email || '');
+  const [gender, setGender] = useState<'male' | 'female' | 'other'>(
+    userData?.gender || '',
+  );
+
+  useEffect(() => {
+    if (updateProfile?.success) {
+      dispatch(resetProfileUpdate());
+      showToast('Profile updated successfully.', '', 'success');
+    }
+  }, [updateProfile]);
+  useEffect(() => {
+    (async () => {
+      const imgUrlData: any = await convertImageToBase64();
+      setProfilePic(imgUrlData);
+    })();
+  }, []);
   const pickImage = () => {
     launchImageLibrary({mediaType: 'photo'}, response => {
       if (response.assets && response.assets[0]?.uri) {
         setProfilePic(response.assets[0].uri);
       }
     });
+  };
+  const handleUpdateProfile = () => {
+    dispatch(
+      updateUserProfile({
+        email: email,
+        phoneNumber: phoneNumber,
+        gender: gender,
+        profilePicUri: profilePic,
+      }),
+    );
   };
 
   return (
@@ -80,10 +121,11 @@ const EditProfileScreen = () => {
           placeholderTextColor={darkMode ? '#aaa' : '#555'}
           onChangeText={text => setGender(text as any)}
         />
-
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
+        <CustomBtn
+          onPress={handleUpdateProfile}
+          title="Save"
+          loading={loading}
+        />
       </ScrollView>
     </SafeAreaView>
   );

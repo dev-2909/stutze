@@ -42,8 +42,8 @@ const LoginScreen: React.FC = () => {
     }
   }, [status, error]);
   const handleLogin = async () => {
-    navigation.replace('OTPScreen');
-    return;
+    // navigation.replace('OTPScreen');
+    // return;
     if (!email) {
       showToast('Please enter your email', '', 'danger');
       return;

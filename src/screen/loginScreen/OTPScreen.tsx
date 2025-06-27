@@ -46,7 +46,7 @@ const OTPScreen = () => {
     if (otpData?.success) {
       (async () => {
         setValue('');
-        navigation.replace('HomeScreen');
+        navigation.replace('AppTabNavigator');
         showToast(otpData.message, '', 'success');
         // Store OTP verified flag
         await AsyncStorage.setItem('otpVerified', 'true');
@@ -64,8 +64,8 @@ const OTPScreen = () => {
   }, [status, error]);
 
   const handleVerify = async () => {
-    navigation.replace('AppTabNavigator');
-    return;
+    // navigation.replace('AppTabNavigator');
+    // return;
     reset();
     if (value.length < 4) {
       showToast('Please enter full OTP', '', 'danger');

@@ -18,47 +18,41 @@ import {useNavigation} from '@react-navigation/native';
 import SearchBar from '../../components/SearchBar';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {commonStyle} from '../../utils/common/style';
+import {Base_Url} from '../../redux/api/endpoints';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch} from '../../redux/store';
+import {getUserData} from '../../redux/slices/profileSlice';
+import useCommanFn from './MainCommanFn';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
 const HomeView = () => {
+  const navigation = useNavigation<ProfileNav>();
   const [loading, setLoading] = useState(true);
   const [imageUri, setImageUri] = useState('');
-  const navigation = useNavigation<ProfileNav>();
+  const dispatch = useDispatch<AppDispatch>();
+  const {getUserDataFn, convertImageToBase64} = useCommanFn();
+  // const dispatch = useDispatch();
+  const {userData} = useSelector((state: any) => state.profile);
+  // console.log('userData', userData);
+  const [userDataAll, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      const getData = await getUserDataFn();
+      setUserData(getData);
+    })();
+  }, []);
 
   const categories = [
     {id: '1', name: 'Food', image: 'https://via.placeholder.com/80'},
     {id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80'},
     {id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
     {id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80'},
-    {id: '1', name: 'Food', image: 'https://via.placeholder.com/80'},
-    {id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80'},
-    {id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
-    {id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80'},
-  ];
-
-  const services = [
-    {
-      id: '1',
-      name: "Domino's Pizza",
-      image: 'https://via.placeholder.com/300x150',
-      rating: 4.5,
-      price: '$$',
-    },
-    {
-      id: '2',
-      name: 'KFC',
-      image: 'https://via.placeholder.com/300x150',
-      rating: 4.2,
-      price: '$$',
-    },
-    {
-      id: '3',
-      name: 'Burger King',
-      image: 'https://via.placeholder.com/300x150',
-      rating: 4.0,
-      price: '$',
-    },
+    {id: '12', name: 'Food', image: 'https://via.placeholder.com/80'},
+    {id: '22', name: 'Grocery', image: 'https://via.placeholder.com/80'},
+    {id: '32', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
+    {id: '41', name: 'Electronics', image: 'https://via.placeholder.com/80'},
   ];
   const [search, setSearch] = useState('');
   const [filteredCategories, setFilteredCategories] = useState(categories);
@@ -74,37 +68,24 @@ const HomeView = () => {
       setFilteredCategories(filtered);
     }
   };
+  const apiCall = async () => {
+    try {
+      await dispatch(getUserData({rejectValue: 'Error fetching user data'}));
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
   useEffect(() => {
-    const fetchProfilePic = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        if (!token) return console.log('Token not found');
-
-        const response = await fetch('http://10.0.2.2:5000/api/getUser', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const res = await response.json();
-        const data = res.data;
-
-        const buffer = Buffer.from(data.profilePic.data);
-        const base64Image = `data:image/jpeg;base64,${buffer.toString(
-          'base64',
-        )}`;
-        setImageUri(base64Image);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchProfilePic();
-  }, []);
+    if (userData && userData?.profilePic?.data) {
+      (async () => {
+        const imgUrl: any = await convertImageToBase64();
+        setImageUri(imgUrl);
+      })();
+    }
+  }, [userData]);
+  useEffect(() => {
+    apiCall();
+  }, [userDataAll]);
 
   return (
     <SafeAreaView style={commonStyle.safeArea}>

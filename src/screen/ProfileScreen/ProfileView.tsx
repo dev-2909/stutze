@@ -16,6 +16,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {time} from 'console';
 import {title} from 'process';
 import HeaderComponent from '../../components/HeaderComponent';
+import useCommanFn from '../HomeScreen/MainCommanFn';
 
 interface User {
   name: string;
@@ -28,43 +29,23 @@ type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 const ProfileView = () => {
   const [user, setUser] = useState<User | null>(null);
   const [imageUri, setImageUri] = useState<string>('');
-  console.log('user', user);
+  console.log('ca==user', user);
+
   const navigation = useNavigation<ProfileNav>();
+  const {getUserDataFn, convertImageToBase64} = useCommanFn();
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        if (!token) return;
-
-        const response = await fetch('http://10.0.2.2:5000/api/getUser', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const res = await response.json();
-        const data: User = res.data;
-
-        setUser(data);
-
-        const buffer = Buffer.from(data.profilePic.data);
-        const base64Image = `data:image/jpeg;base64,${buffer.toString(
-          'base64',
-        )}`;
-        setImageUri(base64Image);
-      } catch (error) {
-        console.log('Error fetching profile:', error);
-      }
-    };
-
-    fetchProfile();
+    (async () => {
+      const imgUrlData: any = await convertImageToBase64();
+      const data: any = await getUserDataFn();
+      setImageUri(imgUrlData);
+      setUser(data);
+    })();
   }, []);
   const onPressTab = (item: any) => {
-    console.log('--==', item);
-    return;
-    navigation.navigate('MyAddressScreen');
+    if (item.screenName === 'MyAddressScreen') {
+      navigation.navigate('MyAddressScreen');
+      return;
+    }
   };
   const onPresslogout = async () => {
     await AsyncStorage.setItem('otpVerified', 'false');
@@ -106,6 +87,7 @@ const ProfileView = () => {
           {
             title: 'My Address',
             img: require('../../assets/image/icons/pin.png'),
+            screenName: 'MyAddressScreen',
           },
           {
             title: 'Pyment',
@@ -123,7 +105,9 @@ const ProfileView = () => {
           <TouchableOpacity
             key={item.title}
             style={styles.sectionItem}
-            onPress={onPressTab}>
+            onPress={() => {
+              onPressTab(item);
+            }}>
             <Image source={item.img} style={styles.imgStyle} />
             <Text style={styles.sectionText}>{item.title}</Text>
           </TouchableOpacity>

@@ -27,8 +27,7 @@ const CustomBtn: React.FC<CustomBtnProps> = ({
     <TouchableOpacity
       style={[styles.button, styles.darkButton, buttonStyle]}
       onPress={onPress}
-      disabled={loading}
-    >
+      disabled={loading}>
       {loading ? (
         <ActivityIndicator color="#fff" />
       ) : (
@@ -48,7 +47,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   darkButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#00D563',
   },
   buttonText: {
     color: '#fff',

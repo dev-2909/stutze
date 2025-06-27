@@ -48,6 +48,7 @@ export const loginUser = createAsyncThunk<
 >(
   'auth/login',
   async (data, { rejectWithValue }) => {
+    console.log('data==',data)
     try {
       const response = await apiClient.post<LoginResponse>(ENDPOINTS.LOGIN, data);
       console.log('Login response ===', response);
@@ -58,7 +59,7 @@ export const loginUser = createAsyncThunk<
 
       return response;
     } catch (error: any) {
-      console.log('====== login error --->', JSON.stringify(error?.response, null, 2));
+      console.log('====== login error --->', error?.response);
       return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }
