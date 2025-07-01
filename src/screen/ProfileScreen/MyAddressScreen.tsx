@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,35 +10,46 @@ import {
 } from 'react-native';
 import {commonStyle} from '../../utils/common/style';
 import HeaderComponent from '../../components/HeaderComponent';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../stack/AppStack';
 import EditAddressModal from '../../components/EditAddressModal';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch} from '../../redux/store';
+import {
+  editDeleteAddress,
+  getMyAddresses,
+  resetgetEditDeleteAddressRes,
+} from '../../redux/slices/profileSlice';
+import {showToast} from '../../utils/toast';
 
 type MyAddressScreenNAv = NativeStackNavigationProp<RootStackParamList>;
 
 const MyAddressScreen = () => {
   const navigation = useNavigation<MyAddressScreenNAv>();
-  const [addresses, setAddresses] = useState([
-    {
-      id: '1',
-      title: 'Home',
-      address: '123 Main Street, New York, NY',
-      icon: require('../../assets/image/icons/homeIcon.png'),
-    },
-    {
-      id: '2',
-      title: 'Work',
-      address: '456 Office Park, Brooklyn, NY',
-      icon: require('../../assets/image/icons/homeIcon.png'),
-    },
-    {
-      id: '3',
-      title: 'Other',
-      address: '789 Random Place, Queens, NY',
-      icon: require('../../assets/image/icons/pin.png'),
-    },
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const {getAddressRes, getEditDeleteAddressRes} = useSelector(
+    (state: any) => state.profile,
+  );
+  useEffect(() => {
+    if (getAddressRes?.success) {
+      setAddresses(getAddressRes.data);
+    }
+  }, [getAddressRes]);
+  const [addresses, setAddresses] = useState<
+    [
+      {
+        id: string;
+        title: string;
+        address: string;
+        city: string;
+        zipcode: string;
+        street: string;
+        _id: string;
+        icon?: any; // Assuming icon is an optional property
+      },
+    ]
+  >(getAddressRes);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<{
     id: string;
@@ -48,31 +59,52 @@ const MyAddressScreen = () => {
   const handleAddAddress = () => {
     navigation.navigate('AddAddressScreen');
   };
-
-  const handleEditAddress = (id: string) => {
-    const addressToEdit = addresses.find(address => address.id === id);
-    if (addressToEdit) {
-      setSelectedAddress(addressToEdit);
-      setEditModalVisible(true);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchAddresses = async () => {
+        try {
+          await dispatch(getMyAddresses()).unwrap();
+        } catch (error) {
+          console.error('Failed to fetch addresses:', error);
+        }
+      };
+      fetchAddresses();
+    }, [dispatch]),
+  );
+  useEffect(() => {
+    console.log('getEditDeleteAddressRes===', getEditDeleteAddressRes);
+    if (getEditDeleteAddressRes?.success) {
+      showToast(getEditDeleteAddressRes?.message, '', 'success');
+      dispatch(resetgetEditDeleteAddressRes());
+      dispatch(getMyAddresses());
     }
+  }, [getEditDeleteAddressRes]);
+  const handleEditAddress = (id: string) => {
+    // const addressToEdit = addresses.find((address: any) => address._id === id);
+    // setSelectedAddress(addressToEdit);
+    setEditModalVisible(true);
   };
   const handleSaveEdit = () => {
     if (selectedAddress) {
-      setAddresses(prev =>
-        prev.map(address =>
-          address.id === selectedAddress.id
-            ? {...selectedAddress, icon: address.icon}
-            : address,
-        ),
-      );
+      // setAddresses(prev =>
+      //   prev.map(address =>
+      //     address.id === selectedAddress.id
+      //       ? {...selectedAddress, icon: address.icon}
+      //       : address,
+      //   ),
+      // );
       setEditModalVisible(false);
       setSelectedAddress(null);
     }
   };
 
-  const handleDeleteAddress = (id: string) => {
-    // Delete the address from the list
-    setAddresses(prev => prev.filter(address => address.id !== id));
+  const handleDeleteAddress = async (id: string) => {
+    const deleteData: any = {
+      type: 'delete',
+      addressId: id,
+    };
+
+    await dispatch(editDeleteAddress(deleteData));
   };
 
   return (
@@ -86,19 +118,21 @@ const MyAddressScreen = () => {
           </TouchableOpacity>
         </View>
         <FlatList
-          data={addresses}
+          data={addresses || []}
           keyExtractor={item => item.id}
           renderItem={({item}) => (
             <View style={styles.addressCard}>
-              <Image source={item.icon} style={styles.icon} />
+              {/* <Image source={item.icon} style={styles.icon} /> */}
               <View style={styles.addressInfo}>
-                <Text style={styles.addressTitle}>{item.title}</Text>
-                <Text style={styles.addressText}>{item.address}</Text>
+                <Text style={styles.addressTitle}>
+                  {item.city + '-' + item.zipcode}
+                </Text>
+                <Text style={styles.addressText}>{item.street}</Text>
               </View>
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => handleEditAddress(item.id)}>
+                  onPress={() => handleEditAddress(item._id)}>
                   <Image
                     source={require('../../assets/image/icons/edit.png')}
                     style={styles.icon}
@@ -106,7 +140,7 @@ const MyAddressScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => handleDeleteAddress(item.id)}>
+                  onPress={() => handleDeleteAddress(item._id)}>
                   <Image
                     source={require('../../assets/image/icons/delete.png')}
                     style={styles.icon}

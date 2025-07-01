@@ -8,17 +8,31 @@ import {
   SafeAreaView,
   Platform,
   PermissionsAndroid,
+  ScrollView,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import MapView, {Marker, Region} from 'react-native-maps';
 import HeaderComponent from '../../components/HeaderComponent'; // Your custom header
 import {commonStyle} from '../../utils/common/style'; // Common safeArea etc.
-
+import {AppDispatch} from '../../redux/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {addAddress, resetAddress} from '../../redux/slices/profileSlice';
+import {showToast} from '../../utils/toast';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../../stack/AppStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 const AddAddressScreen: React.FC = () => {
+  const navigation = useNavigation<ProfileNav>();
   const [label, setLabel] = useState<'Home' | 'Work' | 'Other'>('Home');
   const [location, setLocation] = useState('');
   const [flatNo, setFlatNo] = useState('');
   const [landmark, setLandmark] = useState('');
+  const [city, setCity] = useState('');
+  const [pincode, setPincode] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
+  const {addAddressRes} = useSelector((state: any) => state.profile);
+  console.log('addAddressRes===', addAddressRes);
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
     longitude: -112.4324,
@@ -26,6 +40,18 @@ const AddAddressScreen: React.FC = () => {
     longitudeDelta: 0.01,
   });
   console.log('---', region);
+  useEffect(() => {
+    if (addAddressRes?.userId) {
+      showToast('Address added successfully!', '', 'success');
+      setLocation('');
+      setFlatNo('');
+      setLandmark('');
+      setCity('');
+      setPincode('');
+      dispatch(resetAddress());
+      navigation.goBack();
+    }
+  }, [addAddressRes]);
   // Request current location
   const requestLocation = async () => {
     if (Platform.OS === 'android') {
@@ -57,7 +83,7 @@ const AddAddressScreen: React.FC = () => {
     requestLocation();
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log('Saved Address:', {
       region,
       location,
@@ -65,15 +91,30 @@ const AddAddressScreen: React.FC = () => {
       landmark,
       label,
     });
+    if (!location || !flatNo || !city || !pincode) {
+      showToast('Please fill all required fields', '', 'danger');
+      return;
+    }
+    const addressData = {
+      street: location + landmark + flatNo,
+      city: city,
+      state: city,
+      country: 'India',
+      zipcode: pincode,
+      latitude: region.latitude,
+      longitude: region.longitude,
+    };
+
+    const resultAction = await dispatch(addAddress(addressData));
+    console.log('Address added successfully:', resultAction);
   };
 
   return (
     <SafeAreaView style={commonStyle.safeArea}>
       <HeaderComponent title="Add Address" />
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.title}>Add New Address</Text>
 
-        {/* 🗺️ MapView */}
         <MapView
           provider={Platform.OS === 'ios' ? undefined : 'google'}
           style={styles.map}
@@ -110,6 +151,20 @@ const AddAddressScreen: React.FC = () => {
           value={landmark}
           onChangeText={setLandmark}
         />
+        <TextInput
+          style={styles.input}
+          placeholder="City"
+          placeholderTextColor="#AAAAAA"
+          value={city}
+          onChangeText={setCity}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Pincode"
+          placeholderTextColor="#AAAAAA"
+          value={pincode}
+          onChangeText={setPincode}
+        />
 
         <Text style={styles.sectionLabel}>Save As</Text>
         <View style={styles.labelRow}>
@@ -135,7 +190,7 @@ const AddAddressScreen: React.FC = () => {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Address</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

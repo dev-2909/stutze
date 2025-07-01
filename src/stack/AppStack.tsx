@@ -21,7 +21,7 @@ export type RootStackParamList = {
   OTPScreen: undefined;
   ProfileScreen: undefined;
   EditProfileScreen: undefined;
-  ServiceScreen: {category: string};
+  ServiceScreen: {category: any};
   MyAddressScreen: undefined;
   AddAddressScreen: undefined;
 };

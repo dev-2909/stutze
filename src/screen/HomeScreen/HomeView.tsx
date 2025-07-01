@@ -21,7 +21,7 @@ import {commonStyle} from '../../utils/common/style';
 import {Base_Url} from '../../redux/api/endpoints';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch} from '../../redux/store';
-import {getUserData} from '../../redux/slices/profileSlice';
+import {getCategory, getUserData} from '../../redux/slices/profileSlice';
 import useCommanFn from './MainCommanFn';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
@@ -33,46 +33,34 @@ const HomeView = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {getUserDataFn, convertImageToBase64} = useCommanFn();
   // const dispatch = useDispatch();
-  const {userData} = useSelector((state: any) => state.profile);
-  // console.log('userData', userData);
+  const {getCategoryData} = useSelector((state: any) => state.profile);
   const [userDataAll, setUserData] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
       const getData = await getUserDataFn();
       setUserData(getData);
-      (async () => {
-        const imgUrl: any = await convertImageToBase64(
-          getData?.profilePic?.data,
-        );
-        setImageUri(imgUrl);
-      })();
+      const imgUrl: any = await convertImageToBase64(getData?.profilePic?.data);
+      setImageUri(imgUrl);
     })();
   }, []);
 
-  const categories = [
-    {id: '1', name: 'Food', image: 'https://via.placeholder.com/80'},
-    {id: '2', name: 'Grocery', image: 'https://via.placeholder.com/80'},
-    {id: '3', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
-    {id: '4', name: 'Electronics', image: 'https://via.placeholder.com/80'},
-    {id: '12', name: 'Food', image: 'https://via.placeholder.com/80'},
-    {id: '22', name: 'Grocery', image: 'https://via.placeholder.com/80'},
-    {id: '32', name: 'Pharmacy', image: 'https://via.placeholder.com/80'},
-    {id: '41', name: 'Electronics', image: 'https://via.placeholder.com/80'},
-  ];
   const [search, setSearch] = useState('');
-  const [filteredCategories, setFilteredCategories] = useState(categories);
+  const [filteredCategories, setFilteredCategories] = useState(getCategoryData);
   const handleSearch = (text: string) => {
     setSearch(text);
-
+    console.log('text==', text);
     if (text.trim() === '') {
-      setFilteredCategories(categories);
+      setFilteredCategories(getCategoryData);
     } else {
-      const filtered = categories.filter(item =>
+      const filtered = getCategoryData.filter((item: any) =>
         item.name.toLowerCase().includes(text.toLowerCase()),
       );
       setFilteredCategories(filtered);
     }
+  };
+  const getCategoryApi = async () => {
+    dispatch(getCategory({rejectValue: 'Error fetching getCategoryData'}));
   };
   const apiCall = async () => {
     try {
@@ -83,6 +71,7 @@ const HomeView = () => {
   };
 
   useEffect(() => {
+    getCategoryApi();
     if (!userDataAll) apiCall();
   }, [userDataAll]);
 
@@ -117,7 +106,7 @@ const HomeView = () => {
         {/* Categories */}
         <Text style={styles.sectionTitle}>Categories</Text>
         <FlatList
-          data={filteredCategories}
+          data={search?.length > 0 ? filteredCategories : getCategoryData || []}
           keyExtractor={item => item.id}
           numColumns={2}
           style={styles.flatList}
@@ -125,10 +114,19 @@ const HomeView = () => {
             <TouchableOpacity
               style={styles.categoryCard}
               onPress={() =>
-                navigation.navigate('ServiceScreen', {category: item.name})
+                navigation.navigate('ServiceScreen', {category: item})
               }>
               <Image source={{uri: item.image}} style={styles.categoryImage} />
               <Text style={styles.categoryText}>{item.name}</Text>
+              <Text
+                style={[
+                  styles.categoryText,
+                  {
+                    fontSize: 10,
+                  },
+                ]}>
+                ({item.description})
+              </Text>
             </TouchableOpacity>
           )}
         />

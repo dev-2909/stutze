@@ -15,6 +15,7 @@ const useCommanFn = () => {
     const base64Image = `data:image/jpeg;base64,${buffer.toString('base64')}`;
     return base64Image;
   };
+
   return {
     getUserDataFn,
     convertImageToBase64,

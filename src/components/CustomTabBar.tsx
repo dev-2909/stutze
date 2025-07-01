@@ -60,7 +60,6 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
             navigation.navigate(route.name);
           }
         };
-        console.log('route.name', route.name);
         return (
           <TouchableOpacity
             key={route.key}

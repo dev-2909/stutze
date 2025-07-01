@@ -1,6 +1,6 @@
 // src/screens/ServiceScreen.tsx
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import {RootStackParamList} from '../../stack/AppStack';
 import SearchBar from '../../components/SearchBar';
 import {commonStyle} from '../../utils/common/style';
 import HeaderComponent from '../../components/HeaderComponent';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch} from '../../redux/store';
+import {getService} from '../../redux/slices/profileSlice';
 
 type ServiceRouteProp = RouteProp<RootStackParamList, 'ServiceScreen'>;
 
@@ -45,34 +48,49 @@ const sampleServices = [
 const ServiceScreen = () => {
   const route = useRoute<ServiceRouteProp>();
   const {category} = route.params;
+  const dispatch = useDispatch<AppDispatch>();
 
-  const filteredServices = sampleServices.filter(service =>
-    service.name.toLowerCase().includes(category.toLowerCase()),
-  );
+  const {getServiceData} = useSelector((state: any) => state.profile);
+  console.log('getServiceData===', getServiceData);
+  useEffect(() => {
+    const categoryId = category?._id; // Replace with your actual category ID
+    dispatch(getService({categoryId}))
+      .unwrap()
+      .then(response => {
+        console.log('Services data:', response);
+      })
+      .catch(error => {
+        console.error('Failed to fetch services:', error);
+      });
+  }, [dispatch]);
   const [search, setSearch] = useState('');
-  const [filteredCategories, setFilteredCategories] =
-    useState(filteredServices);
+  const [filteredCategories, setFilteredCategories] = useState(
+    getServiceData || [],
+  );
   const handleSearch = (text: string) => {
     setSearch(text);
 
     if (text.trim() === '') {
-      setFilteredCategories(filteredServices);
+      setFilteredCategories(getServiceData);
     } else {
-      const filtered = filteredServices.filter(item =>
+      const filtered = getServiceData.filter((item: any) =>
         item.name.toLowerCase().includes(text.toLowerCase()),
       );
       setFilteredCategories(filtered);
     }
   };
+  const getCategoryApi = async () => {};
   return (
     <SafeAreaView style={commonStyle.safeArea}>
-      <HeaderComponent title={`${category} Services`} />
+      <HeaderComponent title={`${category?.name} Services`} />
       <View style={styles.container}>
         {/* Search Bar */}
         <SearchBar search={search} handleSearch={handleSearch} />
         <FlatList
-          data={filteredServices.length > 0 ? filteredServices : sampleServices}
-          keyExtractor={item => item.id}
+          data={
+            filteredCategories.length > 0 ? filteredCategories : getServiceData
+          }
+          keyExtractor={item => item._id}
           renderItem={({item}) => (
             <View style={styles.card}>
               <Image source={{uri: item.image}} style={styles.image} />
